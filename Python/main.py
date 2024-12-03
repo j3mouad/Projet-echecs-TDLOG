@@ -1,5 +1,4 @@
 import os
-os.chdir("C:/Users/hfers/Documents/GitHub/Projet-echecs-TDLOG/Python")
 from chess import ChessGame
 import pygame
 from chess import screen_width,screen_height,added_screen_width

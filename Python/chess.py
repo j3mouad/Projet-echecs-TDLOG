@@ -107,6 +107,18 @@ class ChessGame:
         self.black_moves={(-1,-1):[-1]}
         self.rook_moved=[0,0,0,0]
         self.castle=[0,0,0,0]
+        self.big_screen = False
+    def manage_size(self):
+        if self.big_screen:
+            width, height = pygame.display.get_window_size()
+            screen_width = (5/9)*width
+            added_screen_width = (4/9)*width
+            screen_height = height
+        else:
+            screen_width = 500
+            screen_height = 500
+            added_screen_width = 400
+
     def time_reg(self,white_time,black_time):
         self.white_time=white_time
         self.black_time=black_time
@@ -118,7 +130,6 @@ class ChessGame:
     
     def draw_pieces(self):
         font = pygame.font.Font(None, 12)
-
         for row in range(8):
             for col in range(8):
                 text = font.render(self.chess_board_squares[col][row], True, (0, 0, 255)) 
@@ -284,25 +295,28 @@ class ChessGame:
         self.turn = 'black' if self.turn == 'white' else 'white'
         pygame.display.flip()
         pygame.time.delay(100)
-
-
-    def choose_game(self):
+    
+    def choose_game(self,width,height):
+        # initializing the window
         window = pygame.display.set_mode((screen_width + added_screen_width, screen_height),pygame.RESIZABLE)
+        #writing text above
         pygame.display.set_caption("Let's play Chess!")
         
         # Load the background image
-        background_image = pygame.image.load("background_image.jpg")  # Update with your image path
+        background_image = pygame.image.load("background_image.jpg")
+        #adjusting the image to the width and height
         background_image = pygame.transform.scale(background_image, (screen_width + added_screen_width, screen_height))
-        
+        #initializing a font variable that will be used to render text
         font = pygame.font.Font(None, 28)
         text = font.render("Choose color and time ", True, black)
-        
-        button_width = 250
-        button_height = 50
-        button_margin = 20
-        button_x = 50
-        button_y = 100
+        width, height = pygame.display.get_window_size()
 
+        button_width = 0.3*width
+        button_height = 0.10*height
+        button_margin = 20
+        button_x = 0.35*width
+        button_y = 0.2*height
+        #drawing buttons at the first page
         button_black = pygame.Rect(button_x, button_y, button_width, button_height)
         button_white = pygame.Rect(button_x, button_y + button_height + button_margin, button_width, button_height)
         button_2v2 = pygame.Rect(button_x+button_width+20, button_y +  (button_height + button_margin), button_width, button_height)
@@ -441,7 +455,7 @@ class ChessGame:
                         break
                 self.castle[3] = not b 
                         
-    def is_valid_move(self, start, end):
+    def is_valid_move(self, start: float, end : float):
         x, y = start
         mx, my = end
         start_piece = self.chess_board[y][x]
@@ -530,7 +544,7 @@ class ChessGame:
 
         return False
 
-    def get_possible_moves(self, x, y):
+    def get_possible_moves(self, x:float, y:float):
         """Returns moves for the piece at (x, y) that don't put its king in check."""
         moves = []
         # Check all potential moves
@@ -542,7 +556,7 @@ class ChessGame:
         return moves
 
 
-    def move_piece(self, start, x, y): 
+    def move_piece(self, start: float, x: float, y:float): 
         """Moves the piece from start to (x, y). Handles en passant captures."""
         mx, my = start
         moving_piece = self.chess_board[my][mx]
@@ -599,8 +613,9 @@ class ChessGame:
             # Reset en passant if no double-step pawn move occurred
         self.pion_passant = False
 
-    def back_move_piece(self, start, x, y, piece): 
+    def back_move_piece(self, start, x:float, y:float, piece): 
         """Reverts a move to restore board state."""
+        print("this is", piece)
         mx, my = start
         self.chess_board[y][x], self.chess_board[my][mx] = self.chess_board[my][mx], piece
 
@@ -629,7 +644,7 @@ class ChessGame:
 
         return False
 
-    def simulate_move_and_check(self, start, end):
+    def simulate_move_and_check(self, start:list, end:list):
         """Simulates a move and checks if it puts the player's king in check."""
         piece = self.chess_board[start[1]][start[0]]
         target_piece = self.chess_board[end[1]][end[0]]
