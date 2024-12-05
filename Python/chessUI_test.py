@@ -5,7 +5,7 @@ from chessUI import ChessUI  # Import the ChessUI class from chessUI.py
 pygame.init()
 
 # Initial screen setup
-screen_width, screen_height = 560,350
+screen_width, screen_height = 1000, 500
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("Chess UI Test")
 
@@ -13,18 +13,6 @@ pygame.display.set_caption("Chess UI Test")
 light_color = (238, 238, 210)
 dark_color = (118, 150, 86)
 info_panel_color = (50, 50, 50)
-
-# Test chessboard setup
-chess_board = [
-    ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
-    ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
-    ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
-]
 
 # Load images for chess pieces
 pieces_images = {
@@ -45,6 +33,10 @@ pieces_images = {
 # Initialize ChessUI
 chess_ui = ChessUI(screen, light_color, dark_color, info_panel_color)
 
+# Variables for settings
+play_with_white = False  # Default to playing with white
+chess_game_mode = "Classic"  # Default game mode
+
 # Main loop
 running = True
 while running:
@@ -60,13 +52,12 @@ while running:
     # Clear the screen
     screen.fill((0, 0, 0))
 
-    # Draw the chessboard, pieces, and info panel
-    chess_ui.draw_board()
-    chess_ui.draw_pieces(chess_board)
-    chess_ui.draw_info_panel()
+    # Render the settings panel
+    chess_ui.settings(play_with_white, chess_game_mode)
 
     # Update the display
     pygame.display.flip()
 
 # Quit Pygame
 pygame.quit()
+
