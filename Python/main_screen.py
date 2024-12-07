@@ -25,7 +25,7 @@ pieces_images = {
     'wP': pygame.image.load('white_pawn.png')
 }
 
-class ChessUI:
+class main_screen:
     def __init__(self, screen, info_panel_color, button_color = (211, 144, 99), button_hover_color = None, button_selected_color = (72, 41, 38), text_color = (255,255,255)):
         self.screen = screen
         self.button_color = button_color

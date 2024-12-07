@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import QUIT, MOUSEBUTTONDOWN, MOUSEMOTION
-from chessUI import ChessUI
+from main_screen import main_screen
 # Screen dimensions
 SCREEN_WIDTH =  1000
 SCREEN_HEIGHT = 500
@@ -18,7 +18,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),pygame.RESIZABLE)
 pygame.display.set_caption("Chess UI Test - Main and Settings Screen")
 
 # Initialize ChessUI
-chess_ui = ChessUI(screen, LIGHT_COLOR, DARK_COLOR, INFO_PANEL_COLOR)
+main_screen = main_screen(screen, LIGHT_COLOR, DARK_COLOR, INFO_PANEL_COLOR)
 
 # Main game loop
 running = True
@@ -27,15 +27,15 @@ while running:
     screen.fill((0, 0, 0))
 
     # Render the appropriate screen
-    chess_ui.which_screen_to_render()
+    main_screen.which_screen_to_render()
 
     # Event handling
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
         elif event.type == pygame.VIDEORESIZE:
-            chess_ui.update_dimensions()
-        chess_ui.handling_events_logic(event)
+            main_screen.update_dimensions()
+        main_screen.handling_events_logic(event)
 
     # Update the display
     pygame.display.flip()
