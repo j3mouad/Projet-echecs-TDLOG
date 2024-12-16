@@ -1,5 +1,5 @@
 import pygame
-
+import time
 class Board:
     def __init__(self, screen, rectangle_width, rectangle_height, white_rectangle_color, black_rectangle_color):
         self.screen = screen
@@ -31,25 +31,36 @@ class Board:
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']]
-        self.selected_square = None
+        self.last_selected_rectangle = None 
         self.valid_moves = []
         self.hover_color = (180,180,160)  # Example: Yellow for highlights
         self.select_color = (255, 215, 0)
-        self.hovered_rectangle = (0,0) #tuple indicating the position of the last square hovered
-        self.last_move = None
-        self.transition_animation = True
-        self.square_labels = False
+        self.hovered_rectangle = (0,0) # tuple indicating the position of the last rectangle hovered
+        self.selected_rectangle = None # tuple indicating the position of the last rectangle selected
+        self.valid_moves = [(0,7),(0,6),(0,5),(0,4),(0,3)] # a list indicating valid moves the piece in the selected_rectangle can do 
     def update_dimension(self):
         width,height = self.screen.get_size()
         self.rectangle_width = width // 8
         self.rectangle_height = height //8
+
     def draw_rectangle(self, x :int,y :int, color):
-        pygame.draw.rect(self.screen, color, (x * self.rectangle_width, y * self.rectangle_height, self.rectangle_width, self.rectangle_height))   
+        pygame.draw.rect(self.screen, color, (x * self.rectangle_width, y * self.rectangle_height, self.rectangle_width, self.rectangle_height))  
+
+    def draw_little_circle(self, x :int,y :int, color):
+        pass
     def draw_board(self):
         for row in range(8):
             for col in range(8):
-                color = self.white_rectangle_color if (row + col) % 2 == 0 else self.black_rectangle_color
-                self.draw_rectangle(row , col, color)
+                if (row, col) == self.selected_rectangle:
+                    self.draw_rectangle(row, col, self.select_color)
+                    for x,y in self.valid_moves:
+                        pygame.draw.circle(self.screen, (100,100,80),  
+                                   (x * self.rectangle_width + self.rectangle_width // 2,
+                                    y * self.rectangle_height + self.rectangle_height // 2), 
+                                   min(self.rectangle_width, self.rectangle_height) // 5)
+                else:
+                    color = self.white_rectangle_color if (row + col) % 2 == 0 else self.black_rectangle_color
+                    self.draw_rectangle(row , col, color)
     def draw_pieces(self):
         rows = len(self.board_state)
         cols = len(self.board_state[0])
@@ -102,19 +113,18 @@ class Board:
         int_x_coordinates = x_hovered // self.rectangle_width
         int_y_coordinates = y_hovered // self.rectangle_height
 
-        print(int_x_coordinates,int_y_coordinates)
 
         return int_x_coordinates, int_y_coordinates
 
     def hover_rectangle(self):
-        # get the current square where the mouse is hovering
+        # get the current rectangle where the mouse is hovering
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         int_x_coordinates, int_y_coordinates = self.get_the_position_of_the_rectangle_hovered((mouse_x, mouse_y))
         x_last_hovered, y_last_hovered = self.hovered_rectangle
 
         if not (0 <= int_x_coordinates < 8 and 0 <= int_y_coordinates < 8):
-           return
+            return
         
         if not (0 <= x_last_hovered < 8 and 0 <= y_last_hovered < 8):
             return
@@ -122,38 +132,53 @@ class Board:
         image_last_hovered = self.board_state[y_last_hovered][x_last_hovered]
         image_hovered = self.board_state[int_y_coordinates][int_x_coordinates]
 
-        if int_x_coordinates != x_last_hovered or int_y_coordinates != y_last_hovered:
-            color = self.white_rectangle_color if (x_last_hovered + y_last_hovered) % 2 == 0 else self.black_rectangle_color
+        if (int_x_coordinates,int_y_coordinates) != self.selected_rectangle:
+            if int_x_coordinates != x_last_hovered or int_y_coordinates != y_last_hovered:
+                color = self.white_rectangle_color if (x_last_hovered + y_last_hovered) % 2 == 0 else self.black_rectangle_color
 
-            pygame.draw.rect(self.screen, color, (x_last_hovered*self.rectangle_width , y_last_hovered*self.rectangle_height, self.rectangle_width, self.rectangle_height))
-            pygame.draw.rect(self.screen, self.hover_color , (int_x_coordinates*self.rectangle_width, int_y_coordinates*self.rectangle_height, self.rectangle_width, self.rectangle_height))
+                pygame.draw.rect(self.screen, color, (x_last_hovered*self.rectangle_width , y_last_hovered*self.rectangle_height, self.rectangle_width, self.rectangle_height))
+                pygame.draw.rect(self.screen, self.hover_color , (int_x_coordinates*self.rectangle_width, int_y_coordinates*self.rectangle_height, self.rectangle_width, self.rectangle_height))
 
-            if image_last_hovered != '--':
-                scaled_image = pygame.transform.scale(self.piece[image_last_hovered],(self.rectangle_width,self.rectangle_height))
-                self.screen.blit(scaled_image, (x_last_hovered*self.rectangle_width,y_last_hovered*self.rectangle_height))
+                if (int_x_coordinates, int_y_coordinates) in self.valid_moves:
+                    pygame.draw.circle(self.screen, (100,100,80),  
+                                   (int_x_coordinates * self.rectangle_width + self.rectangle_width // 2,
+                                    int_y_coordinates * self.rectangle_height + self.rectangle_height // 2), 
+                                   min(self.rectangle_width, self.rectangle_height) // 5)
+                if image_last_hovered != '--':
+                    scaled_image = pygame.transform.scale(self.piece[image_last_hovered],(self.rectangle_width,self.rectangle_height))
+                    self.screen.blit(scaled_image, (x_last_hovered*self.rectangle_width,y_last_hovered*self.rectangle_height))
 
-            if image_hovered != '--':
-                scaled_image = pygame.transform.scale(self.piece[image_hovered],(self.rectangle_width,self.rectangle_height))
-                self.screen.blit(scaled_image,(int_x_coordinates*self.rectangle_width,int_y_coordinates*self.rectangle_height))
+                if image_hovered != '--':
+                    scaled_image = pygame.transform.scale(self.piece[image_hovered],(self.rectangle_width,self.rectangle_height))
+                    self.screen.blit(scaled_image,(int_x_coordinates*self.rectangle_width,int_y_coordinates*self.rectangle_height))
 
-        else:
-            pygame.draw.rect(self.screen, self.hover_color , (int_x_coordinates*self.rectangle_width, int_y_coordinates*self.rectangle_height, self.rectangle_width, self.rectangle_height))
-            if image_hovered != '--':
-                scaled_image = pygame.transform.scale(self.piece[image_hovered],(self.rectangle_width,self.rectangle_height))
-                self.screen.blit(scaled_image,(int_x_coordinates*self.rectangle_width,int_y_coordinates*self.rectangle_height))
+            else:
+                pygame.draw.rect(self.screen, self.hover_color , (int_x_coordinates*self.rectangle_width, int_y_coordinates*self.rectangle_height, self.rectangle_width, self.rectangle_height))
+                if (int_x_coordinates, int_y_coordinates) in self.valid_moves:
+                    pygame.draw.circle(self.screen, (100,100,80),  
+                                   (int_x_coordinates * self.rectangle_width + self.rectangle_width // 2,
+                                    int_y_coordinates * self.rectangle_height + self.rectangle_height // 2), 
+                                   min(self.rectangle_width, self.rectangle_height) // 5)
+                if image_hovered != '--':
+                    scaled_image = pygame.transform.scale(self.piece[image_hovered],(self.rectangle_width,self.rectangle_height))
+                    self.screen.blit(scaled_image,(int_x_coordinates*self.rectangle_width,int_y_coordinates*self.rectangle_height))
+                    
+                    
+                
         self.hovered_rectangle = (int_x_coordinates, int_y_coordinates)
         pygame.display.update()
+    def select_rectangle(self, event, valid_moves:list):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            int_x_coordinates, int_y_coordinates = self.get_the_position_of_the_rectangle_hovered((mouse_x, mouse_y))
+            if not (0 <= int_x_coordinates < 8 and 0 <= int_y_coordinates < 8):
+                return
+            if self.selected_rectangle == None:
+                self.selected_rectangle = (int_x_coordinates,int_y_coordinates)
+            else:
+                self.selected_rectangle = None
     
-        
-
-
-
-
-
-
-
-            
-
+    
 
         
         

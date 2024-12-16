@@ -1,9 +1,11 @@
 from Board import Board
+import time
+import pygame
 def test_hover_and_resize():
     """
-    Test function to dynamically observe hover behavior and responsiveness to resizing the screen.
+    Test function to dynamically observe hover behavior ,smooth transitions and responsiveness to resizing the screen.
     """
-    import pygame
+    
 
     # Initialize Pygame
     pygame.init()
@@ -21,7 +23,7 @@ def test_hover_and_resize():
     rectangle_width = initial_width // 8
     rectangle_height = initial_height // 8
     board = Board(screen, rectangle_width, rectangle_height, white_color, black_color)
-
+    s=0
     # Main loop
     running = True
     while running:
@@ -35,11 +37,29 @@ def test_hover_and_resize():
                 screen = pygame.display.set_mode((new_width, new_height), pygame.RESIZABLE)
                 board.screen = screen
                 board.update_dimension()  # Update dimensions for the resized screen
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                board.select_rectangle(event, [])
 
         # Redraw the board and handle hover effects
-        board.draw_board()
-        board.draw_pieces()
+        if board.last_selected_rectangle == None:
+            board.draw_board()
+            board.draw_pieces()
+        if(s==0):
+            clock = pygame.time.Clock()
+            board.smooth_transition((4, 6), (4, 3), 30)
+            time.sleep(0.5)  # Wait for 2 seconds
+            clock.tick(100)
+
+            board.smooth_transition((4, 3), (4, 6), 30)
+            time.sleep(0.5)  # Wait for 2 seconds
+            clock.tick(100)
+
+            board.smooth_transition((0, 7), (7, 0), 30)
+            time.sleep(0.5)  # Wait for 2 seconds
+            s += 1
+
         board.hover_rectangle()
+        
 
         # Update the display
         pygame.display.flip()
@@ -47,3 +67,4 @@ def test_hover_and_resize():
     # Quit Pygame
     pygame.quit()
 
+test_hover_and_resize()
