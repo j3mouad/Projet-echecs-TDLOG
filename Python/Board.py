@@ -177,7 +177,98 @@ class Board:
                 self.selected_rectangle = (int_x_coordinates,int_y_coordinates)
             else:
                 self.selected_rectangle = None
-    
+    def show_promotion_ui(self):
+   
+    # Get current screen size
+        width, height = self.screen.get_size()
+
+    # 1. Capture current screen content
+        background = self.screen.copy()
+
+    # 2. Create a blurred version of the background:
+    # Scale down, then scale back up to create a blur effect
+        scale_factor = 0.2  # Adjust to make blur weaker or stronger
+        small_width = int(width * scale_factor)
+        small_height = int(height * scale_factor)
+
+        small_surf = pygame.transform.smoothscale(background, (small_width, small_height))
+        blurred_background = pygame.transform.smoothscale(small_surf, (width, height))
+
+    # 3. Draw the blurred background to the screen
+        self.screen.blit(blurred_background, (0, 0))
+
+    # 4. Draw a semi-transparent overlay
+        overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+        overlay_color = (0, 0, 0, 100)  # Black with some transparency
+        overlay.fill(overlay_color)
+        self.screen.blit(overlay, (0, 0))
+
+    # 5. Create a panel for the four piece choices
+        panel_width = self.rectangle_width * 5
+        panel_height = self.rectangle_height * 2
+        panel_x = (width - panel_width) // 2
+        panel_y = (height - panel_height) // 2
+
+        panel_color = (200, 200, 200)
+        pygame.draw.rect(self.screen, panel_color, (panel_x, panel_y, panel_width, panel_height), border_radius=15)
+
+    # 6. Optional instruction text
+        font = pygame.font.SysFont(None, 36)
+        text_surf = font.render("Promote pawn to:", True, (0,0,0))
+        text_x = panel_x + (panel_width - text_surf.get_width()) // 2
+        text_y = panel_y + 10
+        self.screen.blit(text_surf, (text_x, text_y))
+
+    # 7. Draw the four piece options: Queen, Rook, Bishop, Knight
+    # Adjust piece codes as necessary if promoting black pawn
+        pieces_to_show = ['wQ', 'wR', 'wB', 'wN']
+        piece_icons = [pygame.transform.scale(self.piece[p], (self.rectangle_width, self.rectangle_height))
+                   for p in pieces_to_show]
+
+        spacing = 10
+        total_pieces = len(piece_icons)
+        total_pieces_width = total_pieces * self.rectangle_width + (total_pieces - 1) * spacing
+        start_x = panel_x + (panel_width - total_pieces_width) // 2
+        start_y = panel_y + panel_height//2
+
+        for i, icon in enumerate(piece_icons):
+           x = start_x + i * (self.rectangle_width + spacing)
+           y = start_y
+           choice_rect = pygame.Rect(x, y, self.rectangle_width, self.rectangle_height)
+           pygame.draw.rect(self.screen, (180,180,180), choice_rect, border_radius=10)
+           self.screen.blit(icon, (x, y))
+           # Here you could store the rect for click detection if needed:
+           # e.g. self.promotion_options = [('Q', choice_rect), ('R', ...), ...]
+
+        pygame.display.flip()
+    def show_message(self, message):
+
+        width, height = self.screen.get_size()
+
+        # Create a semi-transparent overlay
+        overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+        overlay_color = (0, 0, 0, 150)  # Black with transparency
+        overlay.fill(overlay_color)
+        self.screen.blit(overlay, (0, 0))
+
+        # Create a panel for the message
+        panel_width = width // 2
+        panel_height = height // 4
+        panel_x = (width - panel_width) // 2
+        panel_y = (height - panel_height) // 2
+        panel_color = (200, 200, 200)
+        pygame.draw.rect(self.screen, panel_color, (panel_x, panel_y, panel_width, panel_height), border_radius=15)
+
+        # Render the message text
+        font = pygame.font.SysFont(None, 72)
+        text_surf = font.render(message, True, (0,0,0))
+        text_x = panel_x + (panel_width - text_surf.get_width()) // 2
+        text_y = panel_y + (panel_height - text_surf.get_height()) // 2
+        self.screen.blit(text_surf, (text_x, text_y))
+
+        pygame.display.flip()
+
+
     
 
         
