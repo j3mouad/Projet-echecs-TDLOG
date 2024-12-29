@@ -1,72 +1,74 @@
 import pygame
-import time
-from timer import Timer
-# Import the Timer class
-# from your_module import Timer
+from timer import TimerUI  # Import your TimerUI class from its file
+from Board import Board       # Import your Board class from its file
 
+# Initialize Pygame
 pygame.init()
 
-# Test Timer Class
-def test_timer():
-    # Initialize pygame screen for drawing (not necessary for all tests, but useful for visual validation)
-    screen_width = 500
-    added_screen_width = 200
-    screen_height = 500
-    screen = pygame.display.set_mode((screen_width + added_screen_width, screen_height))
-    pygame.display.set_caption("Timer Test")
+# Constants
+SCREEN_WIDTH, SCREEN_HEIGHT = 960, 640
+BOARD_WIDTH_RATIO = 3 / 5  # Left 3/5 for board
+FPS = 60
 
-    # Initialize the timer
-    timer = Timer(cooldown=0.5)
-    timer.start_timer(10, 10)  # Start with 10 seconds for both players
+# Initialize screen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+pygame.display.set_caption("Chess Board with Timer UI")
 
-    # Test 1: Check initial times
-    assert timer.white_time == 10, "White timer did not initialize correctly!"
-    assert timer.black_time == 10, "Black timer did not initialize correctly!"
-    print("Test 1 Passed: Initialization")
+# Colors
+WHITE_COLOR = (238, 238, 210)
+BLACK_COLOR = (181, 136, 99)
 
-    # Test 2: Simulate time update
-    time.sleep(1)  # Wait 1 second to simulate elapsed time
-    timer.update_timer()
-    if timer.turn == "white":
-        assert timer.white_time <= 9, "White timer did not update correctly!"
-    print("Test 2 Passed: Timer Update")
+# Create Board and TimerUI instances
+board = Board(
+    screen=screen,
+    rectangle_width=SCREEN_WIDTH // 8,
+    rectangle_height=SCREEN_HEIGHT // 8,
+    white_rectangle_color=WHITE_COLOR,
+    black_rectangle_color=BLACK_COLOR,
+)
 
-    # Test 3: Add time
-    timer.add_time(5)  # Add 5 seconds to the current player's time
-    if timer.turn == "white":
-        assert timer.white_time == 14, "White timer did not update correctly after adding time!"
-    print("Test 3 Passed: Adding Time")
+timer_ui = TimerUI()
 
-    # Test 4: Switch turn and update
-    timer.turn = "black"  # Switch to black
-    timer.update_timer()  # Simulate time update
-    assert timer.black_time <= 9, "Black timer did not update correctly!"
-    print("Test 4 Passed: Turn Switching and Update")
-
-    # Test 5: Timer runs out
-    timer.start_timer(1, 1)  # Set very low times for a quick test
-    time.sleep(2)  # Wait longer than the timer duration
-    timer.update_timer()
-    winner = timer.is_time_up()
-    assert winner == "black", f"Expected 'black' to win, but got {winner}!"
-    print("Test 5 Passed: Timer Expiry and Winner Check")
-
-    # Visual test for drawing (optional)
+def main():
+    clock = pygame.time.Clock()
     running = True
+    global screen
+    
     while running:
-        screen.fill((255, 255, 255))  # Clear screen
-        timer.draw_timer(screen, screen_width, screen_height, added_screen_width, "white")
-        pygame.display.flip()  # Update the display
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.VIDEORESIZE:
+                # Handle resizing
+                global SCREEN_WIDTH, SCREEN_HEIGHT
+                SCREEN_WIDTH, SCREEN_HEIGHT = event.w, event.h
+                screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 
-        timer.update_timer()  # Continuously update timer
-        time.sleep(1)
+                # Update dimensions for the board
+                board.update_dimension()
+            else:
+                timer_ui.handle_event(event)
 
-    print("All tests passed successfully!")
+        # Fill background
+        screen.fill((238, 238, 210))
 
-# Run the test
-test_timer()
-pygame.quit()
+        # Draw chessboard on the left
+        board_width = int(SCREEN_WIDTH * BOARD_WIDTH_RATIO)
+        board.rectangle_width = board_width // 8
+        board.rectangle_height = SCREEN_HEIGHT // 8
+        board.draw_board()
+        board.draw_pieces()
+
+        # Draw timer UI on the right
+        timer_rect = (board_width, 0, SCREEN_WIDTH - board_width, SCREEN_HEIGHT)
+        timer_ui.draw(screen, timer_rect)
+
+        # Flip display
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
+
