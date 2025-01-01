@@ -16,7 +16,7 @@ def test_hover_and_resize():
     initial_width, initial_height = 600, 600
     screen = pygame.display.set_mode((initial_width, initial_height), pygame.RESIZABLE)
     pygame.display.set_caption("Test Hover and Resize")
-
+    epsilon_height = initial_height * 0.1
     # Colors for the board
     white_color = (240, 217, 181)  # Light square color
     black_color = (181, 136, 99)   # Dark square color
@@ -38,8 +38,9 @@ def test_hover_and_resize():
             elif event.type == pygame.VIDEORESIZE:
                 new_width, new_height = event.w, event.h
                 screen = pygame.display.set_mode((new_width, new_height), pygame.RESIZABLE)
+                epsilon_height = new_height * 0.1
                 board.screen = screen
-                board.update_dimension()  # Update dimensions for the resized screen
+                board.update_dimension(epsilon_height)  # Update dimensions for the resized screen
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 board.select_rectangle(event, [])
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not showed_ui:
@@ -52,7 +53,7 @@ def test_hover_and_resize():
         
         # Redraw the board and handle hover effects
         if board.last_selected_rectangle == None:
-            board.draw_board()
+            board.draw_board(epsilon_height)
             board.draw_pieces()
         if(s==0):
             clock = pygame.time.Clock()
