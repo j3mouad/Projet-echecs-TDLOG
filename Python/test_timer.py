@@ -84,7 +84,7 @@ def draw_timer_options_test():
         screen.blit(background_image, (0, 0))
 
         # Test the draw_timer_options_1 method
-        fancy_button.left_arrow()
+        fancy_button.left_arrow(100)
 
         pygame.display.flip()
         clock.tick(30)
@@ -120,7 +120,84 @@ def test_pause():
         screen.fill((30, 30, 30))
 
         # Test the pause method
-        fancy_button.pause()
+        fancy_button.pause((0,0,0),10)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+    pygame.quit()
+    
+
+def test_control_pannel():
+    # Initialize Pygame
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+    pygame.display.set_caption("Test Control Panel")
+    clock = pygame.time.Clock()
+
+    # Create a Fancy_buttons instance to call draw_control_pannel
+    fraction_of_x = 0.1
+    fraction_of_y = 0.4
+    fraction_of_width = 0.2
+    fraction_of_height = 0.1
+    fancy_button = Fancy_buttons(screen, fraction_of_x, fraction_of_y, fraction_of_width, fraction_of_height)
+
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.VIDEORESIZE:
+                # Handle resizing
+                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                fancy_button.recalculate_dimensions()
+
+        # Fill the screen with a background color
+        screen.fill((50, 50, 50))
+
+        # Test the draw_control_pannel method
+        fancy_button.draw_control_pannel((0, 0, 0), 30)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+    pygame.quit()
+    
+
+def test_draw_main_timer_menu():
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+    pygame.display.set_caption("Test Main Timer Menu")
+    clock = pygame.time.Clock()
+
+    # Load and scale the background image
+    background_image = pygame.image.load('background_test_1.webp')
+
+    # Create a Fancy_buttons instance
+    fraction_of_x = 0.1
+    fraction_of_y = 0.1
+    fraction_of_width = 0.8
+    fraction_of_height = 0.8
+    fancy_button = Fancy_buttons(screen, fraction_of_x, fraction_of_y, fraction_of_width, fraction_of_height)
+
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.VIDEORESIZE:
+                # Handle resizing
+                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                background_image = pygame.transform.scale(background_image, (event.w, event.h))
+                fancy_button.recalculate_dimensions()
+
+        # Draw the background image
+        screen.blit(background_image, (0, 0))
+
+        # Test the draw_main_timer_menu method
+        fancy_button.draw_main_timer_menu((0, 0, 0), 50)  # Blue with opacity
 
         pygame.display.flip()
         clock.tick(30)
@@ -128,5 +205,6 @@ def test_pause():
     pygame.quit()
 
 # Run the test
-draw_timer_options_test()
+test_draw_main_timer_menu()
+
 

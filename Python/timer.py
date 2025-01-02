@@ -26,6 +26,7 @@ class Fancy_buttons:
     def __init__(self, screen, fraction_of_x, fraction_of_y, fraction_of_width, fraction_of_height):
         assert fraction_of_x + fraction_of_width <= 1, "fraction_of_x + fraction_of_width > 1"
         assert fraction_of_y + fraction_of_height <= 1, "fraction_of_y + fraction_of_height > 1"
+
         
         width, height = screen.get_size()
         self.screen = screen
@@ -39,6 +40,7 @@ class Fancy_buttons:
         self.height = fraction_of_height * height
 
     def recalculate_dimensions(self):
+        
         width, height = self.screen.get_size()
         self.x = self.fraction_of_x * width
         self.y = self.fraction_of_y * height
@@ -46,66 +48,64 @@ class Fancy_buttons:
         self.height = self.fraction_of_height * height
         
         
-    def left_arrow(self):
-
-        arrow_left_points = [
-        (self.x, self.y + self.height / 2),  # Tip of the arrow
-        (self.x  + self.width / 2, self.y),  # Top-left
-        (self.x  + self.width / 2, self.y + self.height / 2.25),  # Mid-left
-        (self.x  + self.width, self.y + self.height / 2.25),  # Right-most point
-        (self.x  + self.width, self.y +  self.height / 1.75),
-        (self.x  + self.width / 2, self.y + self.height / 1.75),  # Mid-right
-        (self.x  + self.width / 2, self.y + self.height),  # Bottom-left
-        (self.x , self.y + self.height / 2)  # Back to tip to close
-    ]
-        pygame.draw.polygon(self.screen, (255, 255, 255), arrow_left_points)
-    
-    def pause(self):
-        pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.width / 4, self.height))
-        pygame.draw.rect(self.screen, (255, 255, 255), (self.x + 0.75 * self.width, self.y ,self.width / 4, self.height))
+    def left_arrow(self,color, opacity):
         
-    def pause_button(self):
-        pass
-    def draw_timer_options(self, width, height):
-        # Divide the width into three equal sections
-        section_width = width // 3
-        icon_height = height  # Icons will have the same height as the provided height
-
-        # Create the surface for the timer options
-        options_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        options_surface.fill((0, 0, 0, 0))  # Transparent background
-
-        # Arrow pointing left
+        arrow_layer = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        
         arrow_left_points = [
-        (section_width * 0.2, icon_height // 2),  # Tip of the arrow
-        (section_width * 0.5, icon_height * 0.2),  # Top corner
-        (section_width * 0.5, icon_height * 0.8)   # Bottom corner
-        ]
-        pygame.draw.polygon(options_surface, (255, 255, 255), arrow_left_points)
-
-        # Pause button
-        pause_rect_width = section_width * 0.1
-        gap_between_rects = pause_rect_width * 0.5
-        rect1_x = section_width + section_width * 0.5 - gap_between_rects
-        rect2_x = rect1_x + gap_between_rects + pause_rect_width
-
-        rect1 = (rect1_x, icon_height * 0.2, pause_rect_width, icon_height * 0.6)
-        rect2 = (rect2_x, icon_height * 0.2, pause_rect_width, icon_height * 0.6)
-
-        pygame.draw.rect(options_surface, (255, 255, 255), rect1)
-        pygame.draw.rect(options_surface, (255, 255, 255), rect2)
-
-        # Arrow pointing right
+        (0, self.height / 2),  # Tip of the arrow
+        (self.width / 2, 0),  # Top-left
+        (self.width / 2, self.height / 2.25),  # Mid-left
+        (self.width, self.height / 2.25),  # Right-most point
+        (self.width, self.height / 1.75),
+        (self.width / 2, self.height / 1.75),  # Mid-right
+        (self.width / 2, self.height),  # Bottom-left
+        (0, self.height / 2)  # Back to tip to close
+    ]
+        x, y, z = color
+        pygame.draw.polygon(arrow_layer, (x, y, z, opacity), arrow_left_points)
+        self.screen.blit(arrow_layer, (self.x, self.y))
+        
+    def right_arrow(self, color, opacity):
+        
+        arrow_layer = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        
         arrow_right_points = [
-        (section_width * 2.5, icon_height // 2),  # Tip of the arrow
-        (section_width * 2.2, icon_height * 0.2),  # Top corner
-        (section_width * 2.2, icon_height * 0.8)   # Bottom corner
-        ]
-        pygame.draw.polygon(options_surface, (255, 255, 255), arrow_right_points)
+        (0, self.height / 2.25),
+        (self.width / 2, self.height / 2.25),
+        (self.width / 2, 0),
+        (self.width, self.height / 2),
+        (self.width / 2, self.height),
+        (self.width / 2, self.height / 1.75),
+        (0, self.height / 1.75),
+        (0, self.height / 2.25),
+    ]
+        x, y, z = color
+        # Draw the arrow on the transparent Surface
+        pygame.draw.polygon(arrow_layer, (x, y, z, opacity), arrow_right_points)
 
-        # Blit the options surface onto the main screen
-        self.screen.blit(options_surface, (self.x, self.y + self.height + 10))
+        # Blit the transparent Surface onto the main screen at the desired position
+        self.screen.blit(arrow_layer, (self.x, self.y))
+        
+    def pause(self,color, opacity):
+        # Create a transparent Surface
+        pause_layer = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
 
+        # Define the dimensions of the pause bars relative to the layer
+        bar_width = self.width / 3
+        bar_height = self.height
+
+        x, y, z = color
+        # Draw the left pause bar on the transparent Surface
+        pygame.draw.rect(pause_layer, (x, y, z, opacity), (0, 0, bar_width, bar_height))
+
+        # Draw the right pause bar on the transparent Surface
+        pygame.draw.rect(pause_layer, (x, y, z, opacity), ((2 / 3) * self.width, 0, bar_width, bar_height))
+
+        # Blit the transparent Surface onto the main screen at the desired position
+        self.screen.blit(pause_layer, (self.x, self.y))
+
+        
     def draw_timer(self, time: float, player: Literal['white', 'black'], captured_pieces: list[str],opacity1,opacity2):
         """
         Draw the timer in MM:SS format and captured pieces for a player.
@@ -164,5 +164,167 @@ class Fancy_buttons:
                     piece_x = self.x + col * (piece_size)
                     piece_y = self.y + self.height // 3.5 + row * (piece_size)
                     self.screen.blit(piece_image, (piece_x, piece_y))
+    
+    def draw_control_pannel(self, color, opacity):
+        width, height = self.screen.get_size()
+        
+        width_for_each_icon = self.width // 3
+        height_for_each_icon = self.height
+        
+        padding_x = 0.25 * width_for_each_icon
+        padding_y = 0.25 * height_for_each_icon
+        
+        x1, y1 = self.x + padding_x, self.y + padding_y
+        x2, y2 = x1 + width_for_each_icon + 2 * padding_x, self.y + padding_y
+        x3, y3 = x2 + width_for_each_icon + 2 * padding_x, self.y + padding_y
+          
+        left_arrow = Fancy_buttons(self.screen, x1 / width, y1 / height, width_for_each_icon / width, height_for_each_icon / height)
+        pause_button = Fancy_buttons(self.screen, x2 / width, y2 / height, width_for_each_icon / width, height_for_each_icon / height)
+        right_arrow = Fancy_buttons(self.screen, x3 / width, y3 / height, width_for_each_icon / width, height_for_each_icon / height)
+        
+        left_arrow.left_arrow(color, opacity)
+        pause_button.pause(color, opacity)
+        right_arrow.right_arrow(color, opacity)
+#(33, 52, 81), (0, 0, 0)
+    def draw_main_timer_menu(self, color, opacity):
 
+
+    # --------------------------------------------------
+    # 1) Calculate Button Sizes and Gaps
+    # --------------------------------------------------
+    # Define a small horizontal gap for spacing between buttons
+       button_gap = int(self.width * 0.02)  # 2% of total width as spacing
+
+    # We have 3 buttons and 2 gaps:
+    # total_width = 3 * button_width + 2 * button_gap
+       button_width = (self.width - 2 * button_gap) // 3
+       button_height = self.height // 10
+
+    # Overlay for the remaining window space
+       overlay_window_height = self.height - button_height
+
+    # Unpack the color (RGB)
+       x, y, z = color
+
+    # --------------------------------------------------
+    # 2) Create Button Surfaces
+    # --------------------------------------------------
+    # Gameplay Button
+       overlay_gameplay = pygame.Surface((button_width, button_height), pygame.SRCALPHA)
+    # Fill
+       pygame.draw.rect(
+        overlay_gameplay,
+        (x, y, z, opacity),
+        (0, 0, button_width, button_height),
+        border_top_left_radius=20
+    )
+    # Black Border (width=2)
+       pygame.draw.rect(
+        overlay_gameplay,
+        (0, 0, 0),
+        (0, 0, button_width, button_height),
+        2,  # border thickness
+        border_top_left_radius=20
+    )
+
+    # Moves Button
+       overlay_moves = pygame.Surface((button_width, button_height), pygame.SRCALPHA)
+    # Fill
+       pygame.draw.rect(
+        overlay_moves,
+        (x, y, z, opacity),
+        (0, 0, button_width, button_height)
+    )
+    # Black Border
+       pygame.draw.rect(
+        overlay_moves,
+        (0, 0, 0),
+        (0, 0, button_width, button_height),
+        2  # border thickness
+    )
+
+    # Settings Button
+       overlay_settings = pygame.Surface((button_width, button_height), pygame.SRCALPHA)
+    # Fill
+       pygame.draw.rect(
+        overlay_settings,
+        (x, y, z, opacity),
+        (0, 0, button_width, button_height),
+        border_top_right_radius=20
+    )
+    # Black Border
+       pygame.draw.rect(
+        overlay_settings,
+        (0, 0, 0),
+        (0, 0, button_width, button_height),
+        2,  # border thickness
+        border_top_right_radius=20
+    )
+
+    # --------------------------------------------------
+    # 3) Create a Large Overlay for Remaining Window
+    # --------------------------------------------------
+       overlay_window = pygame.Surface((self.width, overlay_window_height), pygame.SRCALPHA)
+    # Fill
+       pygame.draw.rect(
+        overlay_window,
+        (x, y, z, opacity),
+        (0, 0, self.width, overlay_window_height)
+    )
+    # Black Border (optional)
+       pygame.draw.rect(
+        overlay_window,
+        (0, 0, 0),
+        (0, 0, self.width, overlay_window_height),
+        2  # border thickness
+    )
+
+    # --------------------------------------------------
+    # 4) Dynamic Text for Buttons
+    # --------------------------------------------------
+    # Scale font based on button height, clamped between 12 and 40
+       text_size = max(12, min(40, int(button_height * 0.5)))
+       font = pygame.font.SysFont(None, text_size)
+
+    # Gameplay text
+       gameplay_text = font.render("Gameplay", True, (255, 255, 255))
+       gameplay_rect = gameplay_text.get_rect(center=(button_width // 2, button_height // 2))
+       overlay_gameplay.blit(gameplay_text, gameplay_rect)
+
+    # Moves text
+       moves_text = font.render("Moves", True, (255, 255, 255))
+       moves_rect = moves_text.get_rect(center=(button_width // 2, button_height // 2))
+       overlay_moves.blit(moves_text, moves_rect)
+
+    # Settings text
+       settings_text = font.render("Settings", True, (255, 255, 255))
+       settings_rect = settings_text.get_rect(center=(button_width // 2, button_height // 2))
+       overlay_settings.blit(settings_text, settings_rect)
+
+    # --------------------------------------------------
+    # 5) Blit Surfaces onto the Main Screen
+    # --------------------------------------------------
+    # Button Y-position is self.y
+    # Gameplay
+       self.screen.blit(overlay_gameplay, (self.x, self.y))
+    # Moves => offset by one button + gap
+       self.screen.blit(overlay_moves, (self.x + button_width + button_gap, self.y))
+    # Settings => offset by two buttons + two gaps
+       self.screen.blit(
+        overlay_settings,
+        (self.x + 2 * (button_width + button_gap), self.y)
+    )
+
+    # Large overlay below the buttons
+       self.screen.blit(overlay_window, (self.x, self.y + button_height))
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
