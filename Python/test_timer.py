@@ -206,5 +206,7 @@ def test_draw_main_timer_menu():
 
 # Run the test
 test_draw_main_timer_menu()
+draw_timer_test()
+
 
 
